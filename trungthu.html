@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#05030e" />
+    <title>Chiến Dịch Trung Thu Cinematic</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ============================================================
+         DESIGN TOKENS & RESET
+      ============================================================ */
+      :root {
+        --gold-1: #fff7dc;
+        --gold-2: #ffd66b;
+        --gold-3: #ffb648;
+        --gold-4: #ef9d34;
+        --cream: #fffaf0;
+        --bg-deep: #05030e;
+        --muted: rgba(255, 255, 255, 0.75);
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --font: "Be Vietnam Pro", sans-serif;
+        --font-serif: "Playfair Display", serif;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg-deep);
+        font-family: var(--font);
+        color: #fff;
+        -webkit-font-smoothing: antialiased;
+      }
+      button {
+        font-family: inherit;
+      }
+
+      /* ============================================================
+         BACKGROUND & EFFECTS
+      ============================================================ */
+      #app {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      #scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+        background: radial-gradient(
+          circle at 50% 42%,
+          transparent 40%,
+          rgba(0, 0, 0, 0.5) 80%,
+          rgba(0, 0, 0, 0.9) 100%
+        );
+      }
+      .grain {
+        position: absolute;
+        inset: -50%;
+        pointer-events: none;
+        z-index: 3;
+        opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+        animation: grain 0.2s steps(2) infinite;
+      }
+      @keyframes grain {
+        0% {
+          transform: translate(0, 0);
+        }
+        25% {
+          transform: translate(1%, -1%);
+        }
+        50% {
+          transform: translate(-1%, 1%);
+        }
+        75% {
+          transform: translate(1%, 1%);
+        }
+        100% {
+          transform: translate(-1%, -1%);
+        }
+      }
+
+      /* CINEMATIC BARS */
+      .bars {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 30;
+      }
+      .bar {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 12vh;
+        background: #000;
+        transition: height 1s var(--ease-out);
+      }
+      .bar.top {
+        top: 0;
+      }
+      .bar.bottom {
+        bottom: 0;
+      }
+      .bars.open .bar {
+        height: 4vh;
+      }
+
+      /* ============================================================
+         INTRO
+      ============================================================ */
+      .intro {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        transition:
+          opacity 0.9s ease,
+          transform 1.1s var(--ease-out);
+      }
+      .intro.hide {
+        opacity: 0;
+        transform: scale(1.05);
+        pointer-events: none;
+      }
+      .intro-inner {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .intro-badge {
+        padding: 10px 22px;
+        border-radius: 99px;
+        border: 1px solid rgba(255, 226, 160, 0.25);
+        background: rgba(20, 12, 32, 0.5);
+        backdrop-filter: blur(10px);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--gold-1);
+        margin-bottom: 24px;
+        animation: fadeUp 1s forwards;
+      }
+      .intro-title {
+        margin: 0;
+        font-size: clamp(50px, 12vw, 120px);
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .intro-title .line {
+        display: block;
+        background: linear-gradient(180deg, #fffde2, #ffd870, #d88b27);
+        -webkit-background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 15px 30px rgba(255, 200, 72, 0.2));
+        opacity: 0;
+        animation: titleRise 1s forwards;
+      }
+      .intro-title .line:nth-child(1) {
+        animation-delay: 0.2s;
+      }
+      .intro-title .line:nth-child(2) {
+        animation-delay: 0.4s;
+      }
+      .intro-sub {
+        margin-top: 20px;
+        font-size: clamp(14px, 4vw, 18px);
+        color: var(--muted);
+        opacity: 0;
+        animation: fadeUp 1s 0.6s forwards;
+      }
+
+      .start {
+        margin-top: 40px;
+        padding: 16px 36px;
+        border: 0;
+        border-radius: 99px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 800;
+        color: #2d1302;
+        background: linear-gradient(135deg, #fff6c2, #ffd15a, #ffb13a);
+        box-shadow:
+          0 10px 30px rgba(255, 193, 60, 0.3),
+          inset 0 2px 0 rgba(255, 255, 255, 0.8);
+        opacity: 0;
+        animation: fadeUp 1s 0.8s forwards;
+        transition: transform 0.3s;
+      }
+      .start:hover {
+        transform: translateY(-4px) scale(1.05);
+      }
+
+      @keyframes titleRise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ============================================================
+         STAGE (Beats)
+      ============================================================ */
+      .stage {
+        position: absolute;
+        inset: 0;
+        z-index: 15;
+        pointer-events: none;
+      }
+      .beat {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5vh 5vw;
+        transition:
+          opacity 0.8s,
+          filter 0.8s,
+          transform 0.9s;
+      }
+      .beat.in {
+        animation: breathe 6s ease-in-out infinite;
+      }
+      .beat.out {
+        opacity: 0;
+        filter: blur(10px);
+        transform: scale(1.05);
+      }
+
+      .beat-text .line {
+        text-align: center;
+        font-size: clamp(28px, 6vw, 64px);
+        font-weight: 800;
+        color: var(--cream);
+        text-shadow: 0 6px 20px rgba(0, 0, 0, 0.9);
+        margin: 5px 0;
+      }
+      .beat-text .line:nth-child(2) {
+        font-weight: 500;
+        font-size: clamp(18px, 4vw, 32px);
+        color: var(--gold-1);
+      }
+      .word {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: wordIn 0.8s forwards;
+      }
+      @keyframes wordIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      .beat-image .photo {
+        width: min(100%, 500px);
+        padding: 0 15px;
+        animation: photoReveal 1.2s forwards;
+        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.8));
+      }
+      .beat-image .photo img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+        border-radius: 12px;
+      }
+      @keyframes photoReveal {
+        from {
+          opacity: 0;
+          transform: scale(0.9) translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .photo-caption {
+        margin-top: 20px;
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: clamp(18px, 4vw, 24px);
+        color: var(--gold-2);
+        text-align: center;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9);
+        opacity: 0;
+        animation: fadeUp 1s 0.5s forwards;
+        padding: 0 15px;
+      }
+
+      /* ============================================================
+         FINAL CARD
+      ============================================================ */
+      .final-ui {
+        position: absolute;
+        inset: 0;
+        z-index: 28;
+        display: grid;
+        place-items: center;
+        padding: 15px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1s;
+      }
+      .final-ui.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .final-card {
+        width: min(800px, 100%);
+        max-height: 88vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 40px 25px;
+        border-radius: 20px;
+        background: radial-gradient(
+          circle at top,
+          rgba(45, 25, 70, 0.9),
+          rgba(10, 5, 20, 0.95)
+        );
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 214, 107, 0.3);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+        text-align: center;
+        transform: translateY(30px);
+        transition: transform 1s;
+      }
+      .final-ui.show .final-card {
+        transform: translateY(0);
+      }
+
+      .final-top {
+        font-size: 11px;
+        letter-spacing: 0.4em;
+        color: #f5d98e;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .final-title {
+        margin: 0;
+        font-size: clamp(32px, 8vw, 60px);
+        font-weight: 900;
+        background: linear-gradient(180deg, #fffde2, #ffdb68, #ef9d34);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+      .name {
+        margin: 10px 0 0;
+        font-family: var(--font-serif);
+        font-style: italic;
+        font-size: clamp(22px, 5vw, 36px);
+        color: #fff;
+      }
+
+      .message {
+        margin: 25px auto 0;
+        font-family: var(--font-serif);
+        font-size: clamp(16px, 4vw, 20px);
+        line-height: 1.7;
+        color: #fdf5d3;
+        padding: 0 15px;
+        max-width: 600px;
+      }
+
+      .final-photos {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+      .final-photos .thumb {
+        width: clamp(90px, 28vw, 130px);
+        padding: 5px 5px 15px;
+        background: #fff;
+        border-radius: 4px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        transform: rotate(calc(var(--r) * 1deg));
+        transition:
+          transform 0.3s,
+          z-index 0s;
+        cursor: pointer;
+      }
+      .final-photos .thumb img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .final-photos .thumb:hover {
+        transform: scale(1.2) rotate(0deg) !important;
+        z-index: 10;
+      }
+
+      .signature {
+        margin-top: 35px;
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        color: var(--gold-2);
+        text-transform: uppercase;
+      }
+      .replay {
+        margin-top: 25px;
+        padding: 12px 24px;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 226, 142, 0.4);
+        color: #fff;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+      .replay:hover {
+        background: rgba(255, 214, 107, 0.2);
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+      <div class="vignette"></div>
+      <div class="grain"></div>
+      <div class="bars" id="bars">
+        <div class="bar top"></div>
+        <div class="bar bottom"></div>
+      </div>
+      <div class="stage" id="stage"></div>
+
+      <section class="intro" id="intro">
+        <div class="intro-inner">
+          <div class="intro-badge">Lời nhắn từ Zen Nhí Nhố</div>
+          <h1 class="intro-title">
+            <span class="line">TRUNG</span><span class="line">THU</span>
+          </h1>
+          <p class="intro-sub">
+            Sự cố gắng "quậy tung nóc" nhưng bị cơn buồn ngủ đánh bại...
+          </p>
+          <button class="start" id="startBtn">Bắt đầu điệp vụ</button>
+        </div>
+      </section>
+
+      <section class="final-ui" id="finalUI">
+        <div class="final-card">
+          <div class="final-top">TỔNG KẾT ĐIỆP VỤ</div>
+          <h2 class="final-title">Trung Thu Vui Vẻ!</h2>
+          <div class="name" id="nameText"></div>
+          <div class="message" id="messageText"></div>
+          <div class="final-photos" id="finalPhotos"></div>
+          <div class="signature">🌕 Nghỉ ngơi • Phá cỗ • Hạnh phúc 🌕</div>
+          <button class="replay" id="replayBtn">↺ Xem lại nhật ký</button>
+        </div>
+      </section>
+    </div>
+
+    <audio id="bgm" src="./nhac-trung-thu.mp3" loop></audio>
+    <script src="script.js"></script>
+  </body>
+</html>
