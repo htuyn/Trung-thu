@@ -195,6 +195,7 @@
       .intro-title .line:nth-child(2) {
         animation-delay: 0.4s;
       }
+
       .intro-sub {
         margin-top: 20px;
         font-size: clamp(14px, 4vw, 18px);
@@ -381,7 +382,17 @@
         text-align: center;
         transform: translateY(30px);
         transition: transform 1s;
+
+        /* Bổ sung code Ẩn thanh scrollbar tại đây */
+        scrollbar-width: none; /* Dành cho Firefox */
+        -ms-overflow-style: none; /* Dành cho IE và Edge */
       }
+
+      /* Bổ sung code Ẩn thanh scrollbar cho Chrome, Safari, Cốc Cốc */
+      .final-card::-webkit-scrollbar {
+        display: none;
+      }
+
       .final-ui.show .final-card {
         transform: translateY(0);
       }
